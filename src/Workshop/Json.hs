@@ -20,38 +20,47 @@ import Network.HTTP.Conduit (simpleHttp)
 
 
 -- TASK 1
-data ToDo = ToDo deriving Show
+data ToDo = ToDo
+    { userId    :: Int 
+    , id        :: Int
+    , title     :: String
+    , completed :: Bool
+    } deriving (Show, Eq, Generic, FromJSON, ToJSON)
 
 -- TASK 2
 decodeToDos :: B.ByteString -> Either String [ToDo]
-decodeToDos = undefined
+decodeToDos = eitherDecode
 
 -- TASK 3
 getToDo :: Int -> IO (Either String ToDo)
-getToDo = undefined
+getToDo nr = fmap eitherDecode $ simpleHttp $ "https://jsonplaceholder.typicode.com/todos/" ++ show nr
 -- from: https://jsonplaceholder.typicode.com/todos/
 
 -------------
 
 -- TASK 4
-data Person = Person deriving Show
+data Person = Person
+    { firstName :: String
+    , lastName  :: String
+    , age       :: Int
+    } deriving (Show, Eq, Generic, FromJSON, ToJSON)
 
 -- TASK 5
 jsonFile :: FilePath
-jsonFile = undefined
+jsonFile = "data/people.json"
 -- look in `data` folder
 
 -- TASK 6
 getJsonByteString :: IO B.ByteString
-getJsonByteString = undefined
+getJsonByteString = B.readFile jsonFile
 
 -- TASK 7
 decodePersons :: B.ByteString -> Either String [Person]
-decodePersons = undefined
+decodePersons = eitherDecode
 
 -- TASK 8
 getPersons :: IO (Either String [Person])
-getPersons = undefined
+getPersons = decodePersons <$> getJsonByteString
 
 -------------
 
@@ -60,12 +69,12 @@ getPersons = undefined
 
 run :: IO ()
 run = do
-  -- personsE <- getPersons
-  -- case personsE of
-  --   Left err -> putStrLn err
-  --   Right persons -> print persons
-  -- todoE <- getToDo 1
-  -- case todoE of
-  --   Left err -> putStrLn err
-  --   Right todo -> print todo
+  personsE <- getPersons
+  case personsE of
+    Left err -> putStrLn err
+    Right persons -> print persons
+  todoE <- getToDo 1
+  case todoE of
+    Left err -> putStrLn err
+    Right todo -> print todo
   putStrLn "done"
