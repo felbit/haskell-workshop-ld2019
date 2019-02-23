@@ -21,9 +21,16 @@ toggleMode Normal = Text
 toggleMode Text = Normal
 
 sumDigits :: String -> State GameState GameScore
-sumDigits (x:xs) = do
+sumDigits [] = do
   GameState mode score <- get
   return score
+sumDigits (x:xs) = do
+  GameState mode score <- get
+  case x of
+    '\''                   -> put $ GameState (toggleMode mode) score
+    digit | mode == Normal -> put $ GameState mode $ score + read [digit]
+    _ -> return ()
+  sumDigits xs
 
 calculateScore :: String -> GameScore
 calculateScore input = evalState (sumDigits input) $ GameState Normal 0
